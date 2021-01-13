@@ -1,6 +1,6 @@
 import { map, reduce } from "lodash";
 
-const input: string = `1782
+export const INPUT: string = `1782
 1344
 1974
 1874
@@ -201,8 +201,11 @@ const input: string = `1782
 1621
 1669`;
 
-const numbers = map(input.split("\n"), (s) => parseInt(s));
+export function numbersFromInput(input:string ):number[]{
+  return map(input.split("\n"), (s) => parseInt(s));
+}  
 
+const numbers = numbersFromInput(INPUT)
 const result: number = map(
   map(numbers, (number) => 2020 - number),
   (n) => (numbers.includes(n) ? n : 1)
