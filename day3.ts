@@ -328,7 +328,7 @@ export function debug<T>(item: T, msg?: string): T {
     console.log(item);
     return item;
 }
-function day3ab():number {
+function day3():number {
     type Slope = { moveX: number, moveY: number }
     type Point = { x: number, y: number }
 
@@ -373,4 +373,4 @@ function day3ab():number {
     return reduce(map(slopes, (slope) => returnTreesCount(slope)), (prev, next) => next * prev)
 }
 
-console.log(day3ab);
+console.log(day3);
