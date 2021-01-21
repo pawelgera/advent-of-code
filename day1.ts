@@ -1,6 +1,7 @@
-import { map, reduce } from "lodash";
+import { map } from "lodash";
 
-export const INPUT: string = `1782
+const numbersInput: string =
+`1782
 1344
 1974
 1874
@@ -201,14 +202,30 @@ export const INPUT: string = `1782
 1621
 1669`;
 
-export function numbersFromInput(input:string ):number[]{
+export function numbersFromInput(input: string): number[] {
   return map(input.split("\n"), (s) => parseInt(s));
-}  
+}
+// PART 1
+const numbers = numbersFromInput(numbersInput)
+function day1a(): number {
+  return map(
+    map(numbers, (number) => 2020 - number),
+    (n) => (numbers.includes(n) ? n : 1)
+  ).reduce((result, i) => result * i);
+}
+console.log(day1a);
 
-const numbers = numbersFromInput(INPUT)
-const result: number = map(
-  map(numbers, (number) => 2020 - number),
-  (n) => (numbers.includes(n) ? n : 1)
-).reduce((result, i) => result * i);
-
-console.log(result);
+// PART 2
+function day1b(): number {
+  for (let i1 = 0; i1 < numbers.length - 1; i1++) {
+    for (let i2 = 0; i2 < numbers.length - 1; i2++) {
+      for (let i3 = 0; i3 < numbers.length - 1; i3++) {
+        let sum = numbers[i1] + numbers[i2] + numbers[i3]
+        if (sum === 2020) {
+          return numbers[i1] * numbers[i2] * numbers[i3];
+        }
+      }
+    }
+  }
+}
+console.log(day1b);

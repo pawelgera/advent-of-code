@@ -1,1038 +1,1175 @@
-import { filter, map, split } from "lodash";
+import { drop, dropRight, endsWith, fromPairs, includes, isNumber, keysIn, map, reduce, split, startsWith } from "lodash"
+import { debug } from "./day3"
 
-const INPUT_TEST = `1-3 a: abcde
-1-3 b: cdefg
-2-9 c: ccccccccc`
+const batchInput = `ecl:grn
+cid:315 iyr:2012 hgt:192cm eyr:2023 pid:873355140 byr:1925 hcl:#cb2c03
 
-const INPUT = `3-4 t: dttt
-5-7 l: llmlqmblllh
-3-10 g: gggxwxggggkgglklhhgg
-5-7 d: zxhddvxd
-5-12 s: sgscssssphxs
-3-4 b: lbbbbntqswsv
-1-11 h: hhhhchhhhjhph
-10-16 c: ccccqccchcccccjlc
-10-11 b: bsbdbblbbjbbbb
-3-5 j: jjrjfqz
-4-7 q: qqhqdzjqsc
-1-5 s: srjfsshkqmxw
-5-6 v: xvvzvnp
-5-12 f: ffmfffffpffffm
-4-5 l: lllllgwdfhl
-9-11 b: bgbbbsbbbnbbbvbbbb
-5-9 h: hnhhqhshnvhh
-7-13 c: cxccxcccglccs
-6-9 c: kckpcpgccvmznrccc
-11-15 x: xxxgxxkxgxxxxxtxbxkx
-11-12 s: sdssnnzzrssssss
-9-10 w: wwwwwwwwbxw
-10-12 v: dvvvpvrvvvvvv
-1-4 w: wdqptjk
-17-19 p: ppppppppppppppppkpx
-3-4 h: vhhh
-9-11 z: zzzzczzztzz
-2-5 s: shbfspgszs
-13-15 j: jjjfjjtjjjjjjjjj
-2-12 l: lhlllchlllcsmlll
-12-15 k: kkkxkkkkkkkkkrkk
-11-16 g: gggggggggglggggmg
-7-8 n: nnnnnnnn
-9-11 n: jnwnrmnlnqnnnnn
-4-7 x: xlqxxxxhxnpqxgx
-2-4 h: srfnbgffjcxhgqh
-3-4 t: pdtt
-6-10 w: wvwwwqdwww
-9-13 x: xzxxxxxxxxxxxx
-11-13 s: cmsfqnpwltsgs
-2-11 c: kcccqvfccvrcdc
-8-10 v: hvvhvwvvvv
-6-7 g: gggggdg
-7-10 m: mmmmmmmmmm
-6-7 z: zzzzzgz
-1-3 d: drdsdv
-3-5 w: wwxwk
-1-4 b: kgcrqkbrdb
-1-5 r: dckmrxgndprxlh
-5-7 d: dhddvdhx
-1-3 r: cpmqdrrfqz
-3-4 c: cccc
-9-10 h: hhhhhhhhrz
-14-15 h: hhhhhhhhhhhhphd
-2-6 c: qvmnbgsxjmkff
-3-5 r: rhrrf
-9-15 r: rrrnrxrrrpprsnrrz
-2-5 w: wzwtn
-3-7 t: tttttttt
-6-7 k: kkmphpsv
-2-5 w: wwgwwwk
-14-15 q: nqqfqpqqqqvqqcf
-12-15 n: nbnnnnnnlnnrnnnngn
-13-14 h: hhhthhhhhhvhpsh
-4-6 v: vvxvrv
-14-18 c: ccccccxcccccccccccc
-18-19 s: jhmfgbssnltrcplmxnp
-3-4 h: hhhh
-3-4 r: rrxp
-2-3 r: rqpwzvrk
-2-7 q: qqqqqqq
-4-6 v: bnvvvp
-1-4 v: vxvvk
-4-13 z: znlrnnzgzmjsznzszh
-3-4 s: dtwx
-3-9 c: ccgcccccc
-1-7 f: tfqfffkqfvh
-4-5 c: ccccccc
-6-7 r: rsrthgsrrbr
-8-9 q: vqbcqqhzqqgqjnqbqkm
-10-19 l: lllcxlzlnlchlbrzwpl
-11-14 r: prrrrrrrztrjrrnrrrm
-7-10 w: wwwtbwzwtwww
-2-4 w: wzcwvfrtdv
-7-12 l: fmljlbmlllfl
-1-3 n: nnnn
-4-5 m: mwmjxd
-11-14 v: wfhpfdxbjwvwtg
-2-7 h: qsxjzhn
-4-7 p: ptxtppcpcp
-1-5 j: ssjjqfjjgs
-4-7 d: fjpdhdddmb
-1-4 t: qjxsvdwttnktq
-3-5 f: fffff
-10-13 t: ttttttttttttftt
-4-8 v: bpqhvcmvm
-4-5 q: qqqpq
-10-16 w: dwpwsbcwwwwqxhww
-8-10 p: ppppqppppdpp
-2-4 k: kkwk
-1-4 d: ddcdm
-7-12 f: ffftfpbffffnp
-5-8 x: xxxcqxxzx
-3-4 t: ttzg
-2-4 m: mmmmm
-5-6 g: gggsxg
-2-13 j: jkjjjjjjjjjjjjjjjjj
-6-8 t: ttfrtftt
-7-9 l: lgljnlllllvl
-13-20 b: btbbbbbbbzbbkbbbbbbq
-1-2 c: cccch
-4-15 q: xcqbkmhzxlgswkqkc
-2-5 h: hhhhswhhhh
-1-5 s: sslss
-2-7 t: trttttktt
-14-15 k: kkkkkkkhkkkkkkvksk
-1-3 l: llllllllg
-6-8 s: ssshsjsk
-4-8 g: ggwgqbgg
-14-17 b: jbbbbdbqtbbvsnkzk
-4-5 b: bbbxbbb
-10-18 z: zzzzzzzzzzzzzzzzzz
-2-4 p: ppxc
-8-9 g: qmgsrggchgg
-8-9 j: jjjjjjjgj
-5-6 f: jfffff
-2-3 x: xhbx
-9-10 s: ssssmsssfgs
-14-16 l: llllllqlllllhrlllxl
-10-12 w: glwwwtwkdcgh
-3-8 p: pprjpppcpppppppkppp
-3-8 v: vxvkkvvvpvbz
-4-7 j: jlqgjnljxfwbjjj
-1-3 q: wqqddnzfsblvcjldq
-2-3 f: mdcqqfgxtcmn
-9-16 j: jjjjjjjtjjrjxvjj
-3-9 d: zdcndblvd
-1-8 w: cdxwltwg
-2-10 h: qgftvvwssfhhmjktwfj
-5-8 m: mbmmwmmmmmmmm
-2-5 k: ckklk
-12-18 m: mmmmmmmmmmmmmmmmmmkm
-10-13 n: sbnnbnwqwnncnflnkn
-2-4 q: qqqh
-5-6 w: wwwwxs
-1-7 m: smmmmmnm
-8-15 j: jjrkhjjjxjkjjwjrfjc
-5-6 j: jvjjzt
-1-12 g: cbggkptcgxgzt
-4-6 v: vvvvvkv
-1-4 j: jjjd
-12-13 k: kkkkkkkkkmkwmk
-2-4 d: jvdwxdk
-4-8 k: tfzklvgktd
-2-4 t: zlmtdmtz
-15-16 q: dkmpgqkzqwqjjqqd
-3-8 z: zvjzqmzrzns
-2-11 h: hhhhlhtrhhhhq
-1-3 r: rrrr
-12-19 b: mhfwhbskbpsrvrskphd
-2-3 x: pgsfjblxk
-2-4 k: cvjs
-3-6 s: bswshc
-2-3 d: vdstlpdzx
-10-11 t: ttnthtwwtpr
-2-4 j: jsmjjjj
-3-4 g: gggf
-11-14 z: hgpzzzzzzczznwkvzz
-12-13 v: vvvvvvxvvvdmmv
-4-5 w: wnwww
-9-10 z: zzzzzzzzzr
-3-5 l: tkkllllllllp
-1-2 h: hhgst
-1-2 h: wwvx
-1-14 v: hhcfklvvvvvxzq
-2-4 t: wwkttt
-6-7 c: jcccxhf
-11-16 q: qlxqqbqqqbqqmqqqnqqq
-3-5 m: mvmmmmm
-7-8 s: gsgsmslh
-5-9 m: mmwmjmnfmm
-16-17 w: wwlwtwkwwpzbfwbww
-3-4 x: mkdxsfxxjxj
-6-11 b: jdxkqbxcwvbx
-7-8 w: wwwwwwwdtt
-5-12 r: hcrrrzrfgbprwrtbr
-6-8 n: nnnnnzgw
-5-7 q: qhqqczbq
-3-8 d: dddcdqddpdddn
-6-7 g: ggggggggg
-8-13 w: wswwsmwcwdljnldw
-3-4 b: bbbdh
-5-6 p: pdvcppbkg
-7-14 n: qnkhcnmnfnnrcn
-12-18 v: zbvvwvvvvvvdxvvvvv
-10-13 p: pppppppjppppppp
-2-5 p: tvkplq
-1-5 g: gmdqggxbg
-1-3 s: sgtsrs
-11-12 n: nnnnnnnnnnnn
-12-17 v: vvvvvvvvvlvvvvvvrvv
-4-13 q: qqqqqqqqqqqqk
-5-13 w: wxwwwwwwwwwwm
-1-2 j: jnjvnxck
-11-13 n: nnvtnnrsnnnnnnxnn
-2-4 x: jxbxx
-10-11 b: bbbbbbbmbbpbzblbbb
-1-17 p: bpppppppppppppppppp
-3-16 z: lnmqwfvpbdzkmlqzbfg
-1-7 k: ktbklkmxkdk
-9-12 t: vtttctdttttptt
-6-8 v: xmvvvzgr
-3-7 k: wckkcwmkpxldc
-2-6 t: ljzwsxxfz
-4-5 v: ptvvv
-3-8 r: gmrzrvjct
-3-7 l: llllfltpsl
-2-5 p: rnzpp
-14-15 x: mxxgkxxxxvxxvxx
-5-6 p: pgppfmprwdjd
-9-10 z: vzzzzzzzsb
-13-14 t: ttttttttthstttttt
-12-13 w: wkwwwwnwwwwwfw
-7-10 d: wsldjfwdkqddd
-3-5 b: sbbbh
-1-4 t: tqdttt
-14-16 h: phhtkhdhdhpfrjwh
-15-19 d: dddgdjddpddxdbbndfd
-2-4 g: mgbgjjdgd
-3-6 d: bdhtwd
-7-13 p: bppsmwtqpxpfppqczpkw
-6-11 n: nnnwnnxntnnzvn
-8-10 w: nwhzwwjwcjgwwwnfwwwj
-6-9 g: gglkkgxkt
-2-4 p: pppp
-6-8 b: bbbbbfbv
-3-4 m: mmps
-14-17 l: lllllllllllllllll
-7-9 z: wzzzzfdzth
-2-3 d: gqdmlmxxldklkmdlngdh
-6-11 p: ppjppxppppp
-8-11 p: pppppppdppt
-1-2 m: hgmmmm
-2-5 g: gsjghqqrgqps
-14-15 r: rnrrrrrrrrrrrjd
-4-6 w: wwwtwh
-7-11 b: bhbbbbqqbbbbbbb
-8-10 d: ljsvsdkdxd
-3-5 l: lbxwmlx
-5-11 n: xdqnnnnnnnnnkn
-10-13 w: wfwwwdwwrwwxbw
-2-9 h: lvgzwwjzwlchvf
-2-6 h: hhjhhk
-2-3 j: njjvglndfmqcjfh
-11-17 n: hxnnnnnnntngnrnnn
-4-9 c: knsltvmnt
-9-10 z: xnzzlzzzztzzz
-7-9 q: qqqqqqqqnq
-11-17 p: ppppppppppppppppqpp
-8-12 w: wwptwwfltwbwww
-4-8 k: kkbskkgkc
-10-18 q: qnqcqqkggqcqcqqfqq
-3-4 p: bppqxptcpq
-2-3 s: sjfz
-4-7 j: rjdjtgjksznhhsg
-8-9 x: cxxxdfxtxrxxxx
-8-12 f: fffffffrffff
-4-7 c: ccccczn
-1-2 v: zzvv
-2-3 k: glfrfqkvzkk
-3-15 q: zqqbmqgqksnttjqgnq
-5-14 c: fzcvnxcccckccctc
-2-12 k: pkstjpkqvnnglxgkwffx
-3-5 q: qwqlqwbqw
-11-13 q: hwqqqqqqqqqqqqq
-18-20 m: mmmmmmmgmmmmmmmmmdrw
-2-5 j: djjgb
-16-17 m: mmmmmmmmmrmmmmmxg
-6-13 d: mbfgqrfrhtlxddnfcxj
-15-18 l: llllllllllllllllllll
-10-14 w: wwwwwwmpwwwdwlwwwrx
-7-9 f: glbffbbtff
-16-19 l: lllllxlllllnlllldls
-4-5 l: plllg
-6-7 c: rcpchcc
-7-8 p: ppppppslp
-1-8 z: zzzszzzz
-3-16 f: flkffclcklnffzfkw
-3-8 l: gnlfltll
-1-2 w: wrww
-10-12 h: hhhhzzhhhhhh
-12-14 v: vvvvvvvvvvwvvv
-5-11 h: hhhhhhhhhhhhh
-2-15 g: rwlvdlschqsbrzg
-6-7 d: thcdqdd
-4-6 r: jwvkfvjrd
-10-12 g: gggggggggwgfggggg
-1-7 d: rddddddd
-3-5 d: dgjhmd
-3-16 h: hhthhhhhhhhhhhhzh
-1-3 k: krtcnqklsw
-12-17 j: jjjgjcfvjjjdjptjbjkj
-9-12 k: kjkkkwkknkkkkk
-10-17 l: llllllllllllllllll
-6-10 g: gggzfgrgzgggsgg
-5-8 n: mnnxrnln
-3-6 l: lrlrlfflbllwklbcqd
-10-11 c: cccltccccsfxjcfc
-2-7 s: srssssssw
-1-17 t: tttttttttttttttttt
-7-9 w: fhwwdwmwswrhnwcw
-6-7 j: jjjjjqd
-13-14 x: vxgbmptxxxsxxp
-2-3 m: gmmdsm
-6-7 f: qfffffffw
-7-9 k: kjkkkmmkwkkk
-10-11 g: ggggdggggggg
-14-19 r: rrrrrrrprnvrrrrrrrrr
-1-3 t: rtttt
-5-6 q: qxqqsqq
-16-17 q: qqqpqqqqqqqqqqqlx
-5-6 v: vmbfvvvvvxdvvc
-10-13 l: llllllllllllm
-4-12 d: mgvcvfrdrfdddk
-4-5 v: vvbvv
-2-5 v: lvvnvgbssk
-5-8 v: fvvvgfvgv
-5-6 v: vvvbms
-13-17 q: qqqqqqqqqqqqgqqqqq
-1-3 t: lrtjw
-5-13 g: nnggglrkgjrgg
-1-5 n: nnbnn
-16-19 b: bbbbbbbbbbbbbbbzbbb
-8-9 d: dddddddddd
-7-10 h: hfslhhhkqh
-12-14 p: phpsppwpjppsppppppp
-2-6 s: ptkhqsztgjqrfqzd
-4-8 h: hhhqhhhp
-4-13 p: ppsjptpfppqkpv
-2-5 p: sppvp
-5-7 w: wqxmhbrvwlw
-14-16 r: rrvrrrrkrrrrrfzrrmz
-11-12 h: bpdkkghmqhhv
-10-20 r: hrxdwrqwrmrfrnrrqqrf
-11-12 v: bvvvvvvvvvvmv
-3-4 x: xzxmdxzxx
-7-9 v: vvvvvhvvcv
-4-5 z: zzzsz
-16-17 t: tttttttctttttttttt
-3-10 k: wdkkxtbgskkkkzkbvck
-3-4 l: dlsjt
-2-6 t: snmtntgglhrghnprpcv
-3-10 l: llvlllwllhrlljlll
-5-11 m: mzmrncmmgmwmrm
-13-15 c: ccccccccccccccjsc
-4-5 q: qqqffh
-2-8 j: jzjjjjjjj
-5-11 n: nnxqdnnnmnnnnpnn
-8-11 x: xxxxxxlxxxgxx
-7-11 g: gggcghggmglhglggx
-4-17 l: xllbllflllllllcvpll
-3-6 z: zzxqzbzz
-9-18 s: sssssstsssssssssms
-14-16 r: rrkrrrrhrrrrrrrr
-10-12 m: mmmmmmmmmrmtm
-4-5 z: zqtzzzlnpz
-6-16 c: kcwcjcrtchccmgdsdkc
-10-11 n: nnnnnnnnnnnnnnnfnn
-9-15 n: nnnncnnnnnnnnsnkr
-1-7 d: dddddddd
-12-19 j: jgvjmjnjkjjtjjjjjjd
-9-14 j: jjjjjjjmwjpjjtjhjdj
-6-7 j: jljjjjjqj
-2-5 n: nnnsxmjlvznn
-4-7 r: rrrzwhrhrm
-9-10 x: xxxxxxxxxx
-4-5 k: sqkgkm
-1-4 g: sgkmzgtgggp
-10-14 k: zkkkhkdkkwkkstkkk
-3-10 g: xglkpghggrqnwzxbvm
-7-8 s: ssssssss
-6-9 m: sbmxmmbmmbj
-11-15 z: hzzwzzzzzzrzzzz
-9-10 n: lvlnjnjgnb
-1-5 c: zmscfzg
-2-6 d: kxndkbj
-1-7 j: jfjqjqj
-12-13 w: nwwwwwwwwwwww
-7-8 v: vxcvvvkd
-3-7 f: fqfnvsfqvlhqqq
-3-12 b: hvsvcvmbbgjbncgdpq
-7-12 n: tpjprfntnpnnpnnsn
-6-11 g: gwgggmgbggxgqgg
-15-16 v: vvvzvvvvvvvvvvwv
-12-14 p: ppppppprpppgpgp
-3-11 s: ssvsssssssms
-8-9 q: qqqqqqwtqq
-4-5 d: ddddddddmddddd
-11-12 c: cccscccccnccc
-4-5 k: glzjkx
-2-7 j: fjfdqhq
-6-9 s: ssnwsssfm
-16-17 r: rrrrfwrprrrtrrrcrrr
-3-11 c: fcczfsxvcbmcwktn
-4-6 l: qllcllll
-7-10 h: hhkhhhwhhhhh
-4-9 x: xxdxxxxxmxxx
-2-7 t: ttrtrtt
-3-7 l: llblllcl
-1-2 g: jgtdt
-7-14 p: pgpdtkplcpfhppphqdp
-3-12 b: nbqpbgmbhfwbbbzbnb
-4-6 k: kkxcphk
-12-16 x: kqpkvpnqxgvxwxxmbnh
-5-11 p: pfppgcrhqcxpv
-2-3 w: lfdpwgk
-7-10 t: shktvjtztttqttt
-13-15 f: pffffffgffqfxflfl
-8-14 d: ddddwddddndddddd
-5-9 c: cbhvwcccsccxcw
-2-5 v: jwbrcvxssj
-3-13 q: gzqzqwnprgzjqrp
-5-9 w: wwwwwwwwwwwwwwwwwww
-3-4 p: pktgpzbzlps
-9-14 k: pkmkjkkkhgkkbkkmksd
-7-9 r: rrkfrgtrrkhrw
-2-14 q: qnqqqqqqqqqqqqq
-4-5 d: ddmdddds
-1-13 f: fffffffffffffkfffff
-5-6 f: ffffffffffflfcff
-5-9 s: dwswbrswbv
-11-12 j: rjjjjkjjjjjrjj
-2-5 v: vwdngzv
-2-4 p: spgkbpghbfmnhl
-8-9 c: cccckccxc
-6-8 m: mpkmkkhw
-3-4 q: qqqmq
-1-5 s: szpsz
-14-15 f: wffffffffffffnf
-16-19 d: ddddddddddddddddvvdd
-7-16 q: qfhqqqdqjqqqqqfvqsqq
-3-6 g: ggggggg
-12-16 k: kklkrkkkkkkkfkkkrkk
-7-11 x: xxxxxxhxxxcx
-12-13 r: bsrkmkwrwzsrv
-6-9 b: bbbbbqbkfb
-12-16 d: ddddddddddddcddqd
-2-10 t: ttxptzmfftbrsttgzlp
-6-7 z: zczzzwspzg
-6-8 z: whdrvzrzjwmbz
-5-7 d: fhxvdxdjsgdmgqxb
-5-8 h: qhhbvhhhhhw
-9-11 b: xbbbmbbqhdgbbbb
-6-8 h: hmcgnhmvwmrcqhkht
-6-8 m: mmmmmxmbf
-2-6 g: grgggg
-4-5 g: ggggg
-5-14 k: mhkkkkkgskkwrfkvkkkd
-1-10 g: mggxbcqggpgjg
-3-4 p: pplk
-4-6 j: jjjzjj
-16-17 x: xhxxxxxxxxxxxdvbx
-2-5 c: csxbls
-3-6 h: hhhhzhh
-2-8 r: rwrrkrrrrr
-18-19 q: clhbgqrkfsmnjmfxszq
-9-13 f: pffffffgfffffffff
-7-10 x: wxxxbxbtbfxxx
-5-6 x: xctnxg
-7-11 r: rrrchcrrrrr
-1-6 f: fsdjnfgffgr
-17-18 l: lllvlllflcsdlllllll
-4-15 j: pjjcjjjjjjjjjjrjjjj
-1-5 c: ccccckcdsz
-4-6 f: fgfqfg
-3-16 v: zvvpqxqsvtptqmpvw
-1-11 k: wgnzrddkkfj
-15-16 d: dpdddddddsddddrsd
-4-5 m: gmggcjg
-6-9 q: lfsltjpdj
-8-11 n: bdnnbjdnnvnrnchnd
-2-10 r: rrrvrrrrrrrjrrr
-1-4 h: mdwnzthhvg
-8-9 d: dddvdddbpdd
-1-7 n: hxrlndrnh
-19-20 x: xxxxxxxxxxxxxxxxxrxx
-7-8 b: bbbbhmcc
-8-11 p: ppppppppppr
-7-13 g: ztggpmgfgcgggjg
-5-6 m: gxmmmmxmbsvmdmvprlxn
-8-13 j: bjjgjmnjjjvjj
-4-9 q: qvqqqmnfqwqzjggrqqnq
-3-8 b: bsbnbjdbwbpbb
-5-12 j: vrnjjjmjpjnkrdjckx
-1-6 w: wwwwwwwwwqwwww
-9-11 j: jbjwjjjmjnqjjjj
-7-18 z: zzzzzzlzzzzzzzzzzszz
-8-9 j: jjjjjjjljj
-13-16 g: gggggggggnghvgglggg
-2-14 m: kvmqzmmmmmmmmpm
-4-5 f: fffffhf
-4-5 w: wwwwwwx
-4-17 v: vtvcvvkjvvvvsdvhptv
-4-6 l: qlllllwlljtbdlfk
-1-14 z: sqvjzdswcchfczvvq
-2-9 s: wshsspkcdnbcjcvl
-6-8 n: nnnngnnn
-5-8 n: nnnnndnn
-2-6 t: ftdrttqrt
-8-13 p: mpwpfpjfnppqmppmxf
-1-4 q: qqqq
-9-10 f: fcffpffrdfkfh
-1-3 v: vkvcxm
-9-10 j: jjjjjjjjjbj
-6-7 v: vvfrldv
-1-9 n: qnnnnnhqxnn
-4-5 q: qqqqqqx
-6-10 c: vcbpcclzmn
-3-4 j: jjjj
-9-10 n: nnnnnnzngn
-4-5 q: qxdqqqs
-2-7 l: hlhllhll
-8-9 d: dmdrddrqndddwddcdd
-4-6 z: zfzzzhz
-4-7 g: ggggggg
-4-6 s: njzwmgbw
-16-17 q: qqqqqqqqcqqqbqqmqq
-5-12 q: qqvqkwqqmqrdbqsqx
-2-8 v: vvvvnvvvv
-5-12 m: smhfmmmfxmhmmxmj
-3-4 f: fffmrjfhnfbpcmcj
-6-10 c: ccrhcqlczsc
-1-7 b: xbbbbblb
-19-20 m: mlhmdcwmxmmmmphqmkmm
-8-10 r: brrrrrrmrfrgr
-4-8 s: sssnsssdsh
-1-7 g: qgggtgsn
-19-20 w: wwwwwwwwwwwwhwwwwwwl
-1-2 x: xxqlxx
-3-5 g: ggwgg
-4-5 s: ssqsxs
-6-13 w: kxwwwwwwwwfjrw
-12-13 m: mmmmmmkmmmmmn
-15-17 h: jkhhqwhgbwhfhfvhm
-14-17 n: nnnnncsnnnnnngnngncn
-4-5 l: lldllj
-4-5 j: jjktv
-9-16 p: pppbpptppvpppnppgp
-3-7 m: pwtwglmqrfmfrsfwm
-5-6 x: bxqwxxl
-6-19 j: sjjvtjsgjgdfzjjsjst
-10-14 h: bhhhhhhhhxhhhwz
-8-10 x: xxtvxxxxxx
-6-14 z: zzrzzvzzzzzzzczczzz
-7-8 q: qnsjqwfqqzqgqdq
-6-7 l: rrlrhlw
-1-2 g: ggpgggggggggggggggg
-9-10 x: drdlgbxwphrnqmq
-1-7 s: swszthj
-5-6 w: kwvqkwwwww
-5-7 d: cdwndjddfghqdf
-5-10 z: zzzzzzzzzbz
-1-8 l: tplzsllbbndnltphw
-4-17 l: lckxdfblllccqlbll
-8-9 d: ddddddddd
-11-13 f: fffffffffpfffwff
-3-6 m: mmmtmm
-9-10 c: cccjccccccccck
-8-9 g: ggggggggg
-1-13 k: sdqlkcjxbhmkpskkwkb
-6-12 c: vbccrljmccdcccccf
-5-6 r: crbcrrd
-5-8 x: knxxxbxxxqltfxw
-3-13 g: npgcxgfndxgmg
-2-9 j: tnbnvvgghzcsjznqqln
-11-12 z: zzzzzzzzjzlzzz
-12-13 t: tttttrtttttcttvbl
-1-6 d: dxgldtdld
-17-18 s: wnnkgsmhrhtvjbmkmm
-4-9 t: ttdsttjttvclttgtt
-6-8 t: xgtztttqtttttt
-17-19 q: qqqqqqqcqqqqqhqqhqbq
-8-16 w: wwwwwwwwwwwrwwww
-8-11 n: nnnqnnspnnmnbld
-7-8 n: nngnnnnd
-6-10 l: lnltlcdwlmlslllz
-19-20 w: wwwwwwwwwwwwwwwwwwww
-4-9 d: gdddmdhbv
-6-7 v: vvvvvwv
-4-5 g: gggggg
-5-11 g: gggskbqgpgdgvlgg
-9-14 f: ffffffffffffff
-5-6 c: cwcctlc
-3-8 m: mdmzmzwmmfmxwzfrpm
-10-16 f: ffffmffplgfmhwff
-8-14 d: pkkbrdhfttjdfd
-1-10 n: sbnzncfxcqntzpnvcgw
-6-15 d: zxtdddnmntxvknbwdc
-10-11 g: gggggggjggggjk
-7-9 n: vnqnnqdggnnznw
-9-11 j: fjljjjjjcjgj
-8-9 j: jjjjjjjdj
-8-9 v: cgtlnjclqkprbmv
-13-17 f: fgwfffdfgffntfbfffft
-9-10 v: qvlvtvvrmwrvsvlvvkrr
-2-8 t: ttnrtmttlbtt
-2-4 k: kkrp
-5-6 k: kkpkkkl
-3-5 c: zwcwccc
-10-12 j: rjjjjjjjjjjjjj
-1-5 j: jjzjjjml
-4-6 f: hffffffff
-4-5 x: txxcp
-1-4 w: wwwk
-3-16 j: jjsjjjjjjjjjjjjnj
-2-4 n: nnngn
-2-6 c: cckdnz
-8-11 b: bbbbbbbbbbb
-4-18 g: crgqggghggggglgggdg
-11-14 m: glrtzmfgcnmmwmnm
-7-9 w: swwvwwwdszwwwwww
-4-20 v: vvvxvvvvvvvvvvvvhxvv
-2-3 q: qdxqq
-2-5 r: qrrrr
-11-13 s: sssssssssssshs
-3-4 s: zdnlshs
-7-9 w: wwwwwwmcnw
-5-8 q: qqqqqqqqq
-11-14 h: hchhdctlhhcphnhghhhs
-10-14 f: fvfffffffffffffff
-13-15 q: qfqqqqzqqqqqqqqdq
-7-16 l: phclwxgcghmlldljdlhd
-7-15 t: tttttwgqnbtdttrfft
-1-3 d: dcdsxfsqlcddsdfs
-1-4 w: wwwwchqw
-8-9 b: lgbbbdbbb
-5-9 j: lpcbjpxzjjsj
-11-18 r: rwhrfbpcwmzjtfjrrr
-4-8 x: xxxxxxhxxx
-3-8 k: kkkkkkkkk
-4-5 h: hhmfq
-7-9 j: jjjjjjjjj
-7-9 q: chvtrdgkndnqq
-10-13 j: jjjjjjjjjzjjjj
-1-3 j: jjqj
-8-9 g: gggggggvg
-5-9 t: ttwttbttt
-5-6 l: lqkklp
-5-9 f: fffffffffxff
-2-5 b: bbmbpb
-5-6 j: jjjjnj
-1-4 m: mknpnnmcbvt
-3-4 b: bbbb
-9-10 l: llllslnllx
-2-4 h: hhhg
-3-7 w: wwwnwwwwhw
-2-6 k: ddckrbrkk
-4-5 g: gzjnf
-14-19 l: llllllllllllllllllf
-12-14 h: hhkhhhhhhhhhht
-1-5 w: xkvrwzwwl
-11-12 z: zzzzjzzzzzzzznzb
-2-4 j: wjjzjsj
-1-6 h: hhhhhhh
-2-4 w: wrwmrsvws
-5-7 k: kkkkgkbkkkkkkkkkk
-2-5 g: gxncz
-3-11 h: hhhhhxhxhhmjh
-2-4 d: kdxd
-4-5 j: jjjjc
-1-7 q: qzxsgqqgvq
-3-5 x: kwxnnrxhxh
-5-9 r: rrrkgrrrsr
-4-5 g: gfggzghggmg
-10-11 l: lllllllllrl
-11-12 x: xxxxxxtxxxwx
-11-12 b: bbbbbbbbxbbjb
-7-8 b: bbbbbbbrj
-6-7 r: xnrrcrrrrr
-11-13 r: rrrnlrrrrrrrrr
-4-6 v: vhtvjv
-11-15 d: ddnddsdfpgcddwrddd
-12-13 q: zbdfqvxzqgdkb
-5-13 s: gqqbsccpjwrqsvsj
-9-10 x: xxxfxxxxxx
-4-6 s: zsssssbs
-4-5 q: qnqqv
-4-7 m: mzcmzmmmjmf
-1-6 q: qqxgmj
-7-15 d: djnfvjdkddddddtd
-4-5 s: sssfws
-6-13 v: jxxgmvmcvmccv
-12-13 l: lllllllljllzm
-5-6 l: mlljlqvfshdltbwbql
-2-9 x: xxkhxmflxxxgxxrfxxxt
-17-20 c: ccccccccccccccccjccq
-5-17 m: mmmmmmmbmmmmmmmtmmm
-15-16 m: mmmmmmmmmmmmzmmmm
-4-5 f: fffwf
-12-14 g: gggggggggggngz
-4-5 d: gqdqt
-5-8 h: hvhbsvvkp
-6-7 r: rrrrrrrf
-4-7 b: pbtdgxbvqdkrmpz
-6-9 v: bpvpnsvlf
-2-5 k: cbhkpr
-8-9 w: bgwzbxxnv
-3-4 c: ccctc
-3-4 z: zzzbw
-11-13 k: kpwbmdzbkgmctwhcp
-2-7 r: bcphdlk
-14-15 l: ldlllllnlllllhql
-10-11 f: fffffpffffw
-4-9 g: ggghggggz
-6-8 s: tdsxjsxs
-7-10 k: kwkrzhkckkkbkzdhpk
-10-11 s: rdsqsshhskb
-2-4 f: rscnkqfqdtnnglv
-3-6 n: qjvqnz
-7-8 j: jrjjjjpdpf
-6-7 s: rswksssss
-2-3 x: xxxx
-12-18 l: vljllllllvhlllvllln
-3-5 t: ftttt
-10-16 j: mjjhhjjjjfjpwjjrjc
-7-13 n: gnnnnntvggnwn
-12-15 q: qkqqqqqqqqlqqcvqq
-12-17 j: njjjcvjjsjsjjjdjjsj
-5-16 n: qfpvnrttbnfdjdbncdj
-15-16 j: jjjjjjjjjtjmjjvjjj
-6-14 n: nnnnnrnnnnnnnx
-1-4 x: xxxt
-5-12 c: cckfqcvwcqcpcc
-2-7 x: tkpwsfzfkpxbt
-13-15 h: hhhhhhhhhhhhhhh
-1-2 x: xwxkmm
-17-18 k: qkkkdjkkkkkkkkkkfxkk
-3-4 v: vwqf
-2-5 l: slzlllt
-8-9 z: gzztzzzjzjzz
-10-14 v: pzqkvvvvvgvxvvvzvvmp
-9-19 f: fzzffjffnffdslffcqk
-5-15 v: vxvzvvvvqtvvrvvvvvvv
-7-10 x: xxxxxxxxxx
-1-8 k: kkkjkkkqkkkkkbkk
-2-16 j: jwjjjjjjjjjjsjjgjj
-8-9 n: nnnnnnnrvw
-11-12 p: pppppppppppp
-5-7 h: hqhhhjthqphhbhhgppp
-7-9 k: zdkkkwkkvskf
-12-13 m: mmmmmmmmlmmrmm
-9-15 j: wjmjfjjjfqjjjmjjlj
-2-9 c: czcccccct
-8-10 c: cwcgcccfcwc
-13-15 v: vbfvvvvwvvvvnvjvvv
-12-13 j: jfjjjmjjchjjjjjjj
-2-7 s: sgcswlb
-4-6 f: fffccrfks
-4-16 h: hwqhhgdhqzhhfhhhh
-4-13 k: kvkkkkkkgkkkkkkk
-12-13 r: qdfwlrwxpqjsrdg
-1-8 k: bkkkkkkpkrk
-4-7 j: jjjxjjn
-7-9 m: mmzmkmvmmlm
-9-10 k: kpkkkbbkdknkkkd
-3-4 s: sskw
-8-9 b: bbbsbbblmbjbqbbbb
-11-12 g: gggggggggfgn
-1-2 f: fqrtz
-4-6 m: mmmmmm
-2-9 t: tmntbqqtd
-4-12 m: rwbfnkrmmttmn
-9-10 n: ncnnknnnzvn
-1-3 f: fffffffffffw
-3-5 x: lvxgxlx
-3-17 c: rjgsstrzjmhqcrcccmg
-9-10 n: nnbnnnnnnnn
-4-7 p: pppfpptpp
-4-5 l: lllhw
-10-14 q: lrccqhjkqqrnpqq
-2-9 q: jqqhqqqqqwdrxq
-11-15 r: xrrrrrrrrgdrrrnrcr
-2-5 b: cbbfcd
-6-13 l: fxlnjlklbglnln
-3-6 v: wvwrwkvtqnvgbvv
-14-19 p: prpppznppkrjwrtpspk
-5-6 w: khvwwwwsxwlb
-10-16 f: fffwcffzfffjfffflfn
-1-5 r: rhsrktwlkbmgs
-9-10 z: zznzzmznzzznzgzzrq
-2-6 k: kkkkkwk
-7-8 l: rllclllllvlmhbzlqct
-3-9 b: pwbbbbdwblzwxx
-2-5 d: cxrddddddfddrqt
-8-9 j: cknlrwqnnj
-6-8 j: jjjjjrjw
-1-5 g: gfqgg
-1-2 n: nktnn
-4-7 c: cccccchc
-1-5 d: dddddhdz
-14-16 f: vbwfxffmjfxjrdffwfxz
-2-8 m: npnwxrlhmmmwmf
-10-11 s: vssnrsksssssnswst
-6-10 z: zzhzzzvrzdh
-7-11 r: rfhdrrrrrrrrr
-3-4 v: gfvvcvrgv
-7-11 r: drxqrdrrrcrsrwrpjmrm
-2-6 f: xfnmxfhfwd
-3-7 z: ggtkmmzz
-2-4 m: mmkm
-6-7 v: pdvqvvsvvrfvvmxpfq
-2-7 t: nttnfcttlz
-6-9 f: fffxkfrnffgjrjfz
-2-4 s: nmpfs
-1-4 n: dhpn
-8-10 d: ddqdddddddddd
-4-5 x: xzxnwxxxx
-11-12 p: ppcppppppppn
-5-11 s: rgsssrqssss
-3-5 z: vjzzzq
-11-12 r: rrrrrrrrrrrr
-1-2 t: ttstnw
-18-20 b: bssdfwzspgjdglxnhqrb
-2-3 z: zzzhjkjklhwc
-12-14 f: ffmffffwfffpfffff
-10-13 s: kscrplsqsxsfcsbnszqh
-1-20 w: wkwcvwwfwtwpwwwjwwww
-2-5 k: kkkkm
-9-12 c: czpccccbbbcccc
-5-6 v: vxmvkg
-3-4 f: ffns
-7-13 t: thtttcgttttttmntct
-2-3 c: gqwb
-12-13 w: jwjtzwjwwwwwb
-13-16 n: nnpnnnnnwjnghnfnxknn
-10-12 b: bbbhbbbbbbbbvb
-16-18 n: nnnnnnjnnnnnnnnnpn
-4-7 s: wssstjs
-2-5 v: tvhbvmxzt
-2-3 x: fxtx
-2-9 q: mqpgsdvdsfdqgx
-4-6 c: cqfntrvjtdk
-5-7 f: ffffmfcq
-14-15 m: mjmmmmmmmmmmmgx
-5-11 j: gxjjjjjhbjjjhwxvjtg
-6-9 m: mmmxmfvjcgm
-2-5 j: jqjjrjjj
-13-14 h: hghrhhhhhhhhzh
-3-4 x: xxxs
-15-16 h: hhhhhhrhhhhlghvhkhh
-5-6 l: lllldl
-1-5 t: gtflt
-10-11 f: fvfrrfffpnczj
-8-13 s: sssvnsztsssdsssps
-13-16 c: ccqccccgcccczccnbcc
-7-9 h: hqszthxczlhthhhjbhk
-3-6 f: vrfwff
-11-17 f: fffffjffffqfffffgfz
-2-4 t: xstt
-2-7 c: ckccqcscccbc
-5-18 k: wkkkkkkhkkkkkkkfgq
-19-20 p: ptcpbpppppzpzrdkpxhk
-1-2 j: vsfjf
-3-4 f: bfffkffvk
-4-14 h: hhhghghhhhhhhlhhh
-15-17 p: pvdpppppppppppppp
-8-13 m: mkmmmmggmczwmmlmmm
-6-14 b: bfdhgncbhcbbqgmbp
-2-4 z: dzpzfzz
-7-13 f: ffffffffffffnf
-5-12 z: zgzkzfpzzzzzgqhz
-7-11 s: cssnpsrslshsszs
-8-9 f: fffffffff
-5-8 n: nnnnhnnnn
-11-12 j: jjjmjjjjjjxjd
-1-18 x: vjbxxxxmxxxrxwmsxxxx
-8-9 r: rrrrrrrrrr
-10-12 z: zzzzcrzzzzzzz
-1-3 t: ttttt
-2-6 h: hhhfhh
-3-10 w: wkwfdctzzwnv
-14-17 v: vvvvvvvvvvvvvlvvtv
-12-14 h: tmlhvrsscqphnhdtdtm
-7-9 f: fbffjxfszffg
-6-8 h: thhhsgjr
-4-14 s: fqnbddlrwqcsswnff
-11-12 d: ddddddddkxddd
-11-14 p: jhxpppcppphpppppp
-3-5 s: sssslk
-10-12 v: vvvvvvvvvqvk
-9-10 d: ddddddddgrdk
-12-18 s: swlsssssdsksvssspz
-2-4 k: nqfkd
-5-13 m: msxnwjwdqkssm
-3-7 k: kkkkkkgk
-14-15 w: wwwwwghwwwwwwwcw
-1-6 q: qqrqqqqqq
-3-4 t: tsbz
-9-16 s: sdsbwzzssssssssxc
-12-16 w: wwwzwwwwwwwzwxwsw
-1-3 p: gpnwgsstmpr
-5-6 m: gdmmbzm
-1-3 k: jkhkkkk
-11-16 s: sssshsspssppsssmsstv
-19-20 g: gggggggggggggggggghf
-4-5 x: xxxrmx
-17-18 h: hhhlhhhmhhhhhhhhhhh
-1-16 k: tkkkkkkkkkkkkkkkkkk
-5-7 x: xjrhxxxxwx
-2-3 t: ttcx
-4-5 m: vmsmmlmmmjh
-6-7 g: ggggggg
-7-11 r: drrvzhrrgqfrfr
-3-4 q: mqcj
-4-10 q: vqzbqzqqfqhdrncgpptk
-2-8 k: jkftkskk
-5-13 l: gfkxlbmczmzbhgl
-13-18 x: xxxxxxxxxxxxfmlrxh
-8-10 q: nqqqqqqgqqqq
-2-6 m: kcfqmcjzbw
-3-5 k: kkkszl
-3-4 h: hhfhh
-1-3 k: kbkzkqk
-5-6 l: shlznplzllvrk
-1-7 n: knnnnnnnnn
-5-7 n: csfnnmn
-5-11 x: xpxxxxwxxxxq
-3-10 f: fffffblffcffffd
-7-9 h: dghhhhscvhhhh
-3-4 q: qkwwq
-5-6 s: sszdsvss
-3-8 s: lshsslsslsss
-3-10 m: twmmwtcrpmz
-5-12 w: rwjrrcwfgwwnk
-10-11 g: npfbgvsgbmg
-6-8 w: vwwwxwwkgw
-1-3 n: hnbn
-8-10 b: bbbbbbmbbw
-2-11 k: fkgtskhzjzkf
-7-9 q: qqqtqqvqp
-9-14 b: bpqpbbldbqwbwc
-1-5 c: xrlwjm
-1-3 f: ffsv
-14-16 n: nnnndnnnnnnnnpndn
-9-13 x: xxmxwpxxxxxxlhxxxxx
-8-11 f: frhqgdcflvf
-3-7 l: zrbslhpbjgkcvbjfq
-1-2 h: thnkhhl
-5-8 b: bbbbbbbnxb
-6-7 b: bsgbtth
-18-19 m: mpmmmmmmmmmmmmmmmwmm
-14-15 w: wwwwwnwwwwwwwfx
-14-17 d: ddxdddddddddddddd
-13-16 k: kkkkkkkkkkkkkkkkkkk
-3-10 h: jkhhnknnthjbwxswqjc
-11-14 d: ddddddddddddddd
-5-10 h: xjrbhcsjjhn
-6-7 n: jgzqntv
-9-12 f: ffffffjfbffffqf
-1-12 q: wqqqqqqqqqqqq
-6-11 l: lllllqllllcqlhl
-3-4 r: rrrrfvrchslkldq
-1-13 s: szsssjscwksfssssw
-5-9 b: vjwtbkwbbnbbhbbbszbc
-1-3 n: kntnn
-8-9 p: pppppppqcp
-12-13 c: cccccqccccchc
-17-18 w: wwwwwwwwwwkwwwwwmdr
-2-3 h: hfrghmhh
-5-6 t: jxttttttttt
-1-3 m: vmnh
-8-11 c: cccqcxcjccj
-2-10 v: vvvvkvkvrvv
-3-8 j: ksjrzwqjnvfchjxq
-4-8 b: bbbxsbbtqrbb
-7-19 b: bbbbmbhkbsbbbbhbtbf
-2-4 g: lqsg
-10-14 z: zgzzzhzzkwzzzzpzhzz
-7-8 m: bmmmmvsqmpdjmtm
-4-6 z: cgmzlzwhfgkrhgzszvwd
-1-3 w: pbwwwq
-3-6 v: vvvvvv
-13-14 m: zmfpcmmxbwspmmkpx
-3-4 x: xtxrb
-8-9 p: ppppsxpppcpl
-7-9 s: qtsscqbjn
-5-6 q: qmcxqqqm
-3-4 n: nnnwqjknqf
-4-5 s: snssj
-8-16 v: vfvvhvvtvvvjdvvfvv
-3-7 m: mqcwmpxsm
-3-5 p: hrppp
-2-5 f: tkfff
-5-9 f: ffbffffff
-3-6 d: bxjdfdk
-8-12 l: lllllhlllvlllllll
-4-13 g: gggwgjlvmqgdgfg
-5-7 v: wvkkvbvcrvtvvmh
-14-15 h: hhhhhhhhhhhhhjh
-14-16 p: tpkppppppppppppppppp`;
+byr:2027 hcl:ec0cfd ecl:blu cid:120
+eyr:1937 pid:106018766 iyr:2010 hgt:154cm
 
-const policies = INPUT.split("\n");
-export type PolicyObj = {
-  letter: string;
-  password: string;
-  first: number;
-  second: number;
-};
+byr:1965 eyr:2028 hgt:157cm
+cid:236 iyr:2018 ecl:brn
+hcl:#cfa07d pid:584111467
 
-const policyArrs = map(policies, (policy) => split(policy, " "));
-const policyObjs = map(
-  policyArrs,
-  (policyArr): PolicyObj => {
-    return {
-      first: parseInt(split(policyArr[0], "-")[0]),
-      second: parseInt(split(policyArr[0], "-")[1]),
-      letter: split(policyArr[1], ":")[0],
-      password: policyArr[2],
+eyr:2029 ecl:hzl
+iyr:1972 byr:1966
+pid:2898897192
+hgt:59cm hcl:z
+
+pid:231652013 hcl:#602927 hgt:166
+ecl:grn eyr:2025
+byr:2008 iyr:1986
+
+byr:1928 hgt:167cm
+hcl:#18171d iyr:2012
+ecl:oth pid:237657808 eyr:1944
+
+hgt:73in ecl:grn byr:1931 pid:358388825 iyr:2020
+hcl:#602927 eyr:2020
+
+hcl:#efcc98 eyr:2024 ecl:hzl
+byr:2030 hgt:192cm
+iyr:2013 pid:7479289410
+
+pid:053467220 iyr:2012 hgt:169cm
+cid:149 hcl:#866857
+eyr:2030
+byr:1995 ecl:oth
+
+hgt:162cm hcl:#efcc98 ecl:grn byr:1985 pid:419840766
+eyr:2022
+iyr:2020
+
+pid:22086957 hcl:c69235 ecl:#c458c5 eyr:1986 byr:2014 hgt:72cm iyr:1934
+
+hcl:#866857
+ecl:brn eyr:2024
+iyr:2017
+pid:505225484 cid:144
+byr:1980
+hgt:170cm
+
+hcl:#866857 ecl:gry
+byr:1972 iyr:2019 eyr:2023
+cid:234 pid:721290041 hgt:191cm
+
+pid:346301363
+eyr:2020
+hcl:#733820 iyr:2019 hgt:177cm
+byr:1998
+
+hgt:157cm byr:1963
+pid:898055805
+hcl:#fffffd ecl:blu iyr:2017 cid:87
+eyr:2030
+
+pid:605900764 iyr:2011
+hgt:73in ecl:hzl eyr:2024
+hcl:#888785
+cid:281
+
+iyr:2010 eyr:2026 hcl:#4f7e76 pid:883386029 byr:1946 ecl:brn
+
+hcl:z
+iyr:2020 pid:9121928466 byr:2014 ecl:zzz eyr:2025
+hgt:172in
+
+hgt:151cm cid:163 pid:670884417 iyr:2012
+ecl:oth hcl:#ceb3a1
+eyr:2028
+
+hcl:z cid:92 hgt:69cm
+byr:2008 pid:492284612
+eyr:2020 iyr:2023
+ecl:hzl
+
+byr:1933
+hcl:#7d3b0c eyr:2020 hgt:170cm
+pid:949064511 iyr:2010
+ecl:oth
+
+eyr:2025 byr:1989 ecl:oth cid:100 hgt:182cm
+pid:629190040 iyr:2017 hcl:#b6652a
+
+ecl:hzl cid:76 hcl:#e71392 eyr:2021 iyr:2013 byr:1995
+pid:762177473
+hgt:179cm
+
+pid:198500564 eyr:2029 hcl:#733820 cid:51 iyr:2012
+hgt:70in byr:1938 ecl:oth
+
+hgt:190cm ecl:brn byr:1952 iyr:2015 hcl:#623a2f
+eyr:2023
+
+hgt:169cm hcl:#602927 byr:2001 pid:823979592 iyr:2016 eyr:2029
+
+iyr:2010 ecl:gry
+eyr:2022 hgt:156cm byr:1953 pid:434063393
+hcl:#733820
+
+pid:091724580 hcl:a7069e eyr:1984 ecl:#95d01e byr:2012 iyr:2005
+
+eyr:2022 byr:1972 hcl:#866857 ecl:hzl pid:227453248
+hgt:153cm cid:324 iyr:2018
+
+cid:195 pid:049871343
+eyr:2024 hgt:169cm
+byr:1952 iyr:2010 ecl:grn
+
+eyr:2035 pid:189cm
+hgt:77 iyr:1973 ecl:#dc83d5
+hcl:z byr:2004
+
+byr:2027
+pid:89338932 hcl:1de39e ecl:grn hgt:159in eyr:2034 iyr:1937
+
+pid:076534920
+hgt:152cm
+byr:1969
+ecl:blu
+hcl:#866857 iyr:2011 eyr:2024
+
+iyr:2019 eyr:2028
+ecl:blu hgt:169cm
+hcl:#888785 pid:332202163 byr:1923
+
+hgt:65in byr:1964 iyr:2019
+pid:287612987 ecl:hzl cid:213 eyr:2023 hcl:#ceb3a1
+
+hcl:#623a2f pid:182484027
+iyr:2016 ecl:brn byr:1943
+hgt:71in eyr:2021 cid:344
+
+hcl:#cdee64 iyr:2011 ecl:brn eyr:2026 hgt:176cm
+byr:1985 pid:978641227
+
+eyr:2029 ecl:brn hgt:173cm byr:1920 cid:211
+hcl:#866857
+iyr:2016 pid:289769625
+
+hcl:#7d3b0c pid:770938833 iyr:2010 byr:1941 ecl:oth eyr:2029 hgt:161cm
+
+hgt:172cm iyr:2015 ecl:gry byr:1948
+eyr:2029
+pid:466359109 hcl:#341e13
+
+cid:74 pid:405199325 ecl:blu
+hcl:#6b5442
+eyr:1980 byr:2024 hgt:174cm iyr:2011
+
+hgt:183cm pid:075760048 cid:78 byr:1960 ecl:hzl eyr:2030 hcl:#6b5442 iyr:2014
+
+cid:264 hcl:#7d3b0c
+ecl:blu iyr:2011 eyr:2020 hgt:182cm
+byr:1929
+
+pid:435338286 byr:1931
+hcl:z ecl:amb iyr:2013 hgt:73in
+cid:165 eyr:2027
+
+pid:511898552 eyr:2025 hgt:184cm hcl:#602927
+iyr:2018 byr:1989 ecl:hzl
+
+iyr:2016
+hgt:168in
+hcl:#623a2f
+eyr:2025 pid:310738569 ecl:#0c3039
+byr:2027
+
+pid:158cm byr:1946 ecl:grt
+iyr:1920 cid:189
+hcl:389bce hgt:165cm
+
+pid:973732906 hcl:#cfa07d iyr:2010 eyr:2020 hgt:180cm
+byr:1930
+ecl:brn
+
+pid:930994364 byr:1967 hgt:151cm
+iyr:2011 eyr:2022
+
+eyr:1968 hgt:75cm cid:241
+iyr:2011 pid:5493866745
+ecl:grt
+byr:1976 hcl:#a97842
+
+eyr:2026 ecl:oth
+iyr:2016 hcl:#c0946f
+byr:1929
+hgt:175cm
+pid:9421898537
+
+eyr:2028 iyr:2016 byr:1962
+ecl:grn hgt:186cm hcl:#cfa07d pid:432962396
+
+iyr:2010 byr:1934 eyr:2023 hgt:180cm hcl:#cfa07d ecl:gry
+
+cid:168
+byr:1978
+eyr:2027 hgt:189cm pid:802710287
+hcl:#2f980b iyr:2014
+ecl:grn
+
+eyr:1970
+pid:576329104
+ecl:xry iyr:1954 hcl:#341e13 byr:2026
+hgt:74in
+
+eyr:2027 hgt:153cm
+ecl:oth
+hcl:#866857
+pid:290407832 byr:1956 iyr:2017
+
+iyr:2011
+cid:128
+ecl:amb hcl:#7d3b0c hgt:68in pid:743606119 eyr:2020
+
+ecl:oth hcl:#cfa07d
+byr:2016 pid:#de98ae iyr:1984 cid:194
+hgt:170cm
+eyr:2034
+
+pid:526098672 hgt:168cm
+hcl:#7d3b0c cid:167 byr:1923 ecl:blu iyr:2016
+eyr:2030
+
+pid:495569197 hcl:#866857 hgt:193cm
+iyr:2013 eyr:2021 byr:1921 ecl:amb
+
+ecl:amb
+hcl:#a97842 pid:862249915 iyr:2012 byr:1964
+cid:325
+eyr:2021
+
+iyr:1958
+byr:2003
+hgt:160 hcl:#18171d
+ecl:hzl eyr:2020
+
+iyr:2019 byr:1997 ecl:brn
+pid:342735713 hcl:#efcc98
+hgt:181cm cid:307
+eyr:2027
+
+pid:817121616 eyr:2020
+iyr:2012
+hgt:185cm
+hcl:#18171d byr:1969 ecl:hzl
+
+pid:381399203
+ecl:oth byr:1930
+iyr:2014 hcl:#6b5442 hgt:71in cid:156 eyr:2025
+
+byr:2002 hcl:#18171d iyr:2017
+pid:398245854 hgt:64in ecl:gry eyr:2025 cid:127
+
+eyr:2028 hcl:#341e13
+ecl:amb iyr:2012
+pid:079796480 hgt:69cm
+byr:1995
+
+cid:315 iyr:2028
+pid:775929239
+hgt:162cm ecl:dne byr:1940 eyr:1952 hcl:#c0946f
+
+iyr:2015
+hgt:154cm byr:1997
+ecl:grn
+cid:125 eyr:2024 pid:834780229
+hcl:#18171d
+
+ecl:hzl hcl:#a97842 pid:553710574 eyr:2028
+hgt:183cm cid:196
+iyr:2014
+
+pid:377912488 hgt:159cm ecl:amb eyr:2024 byr:1974
+iyr:2014
+hcl:#ceb3a1
+
+eyr:2024
+byr:1947 hgt:63in ecl:brn
+cid:69
+pid:185228911 hcl:#b6652a iyr:2016
+
+eyr:2024
+hgt:168cm hcl:#602927
+iyr:2013
+byr:1993
+pid:681091728 ecl:gry cid:203
+
+pid:037922164 iyr:2020
+byr:1990 hgt:156cm eyr:2023 hcl:#866857
+cid:97 ecl:grn
+
+hgt:170cm pid:980455250
+iyr:2011 ecl:hzl byr:1957
+eyr:2030 hcl:#cfa07d
+
+hgt:158cm
+hcl:#602927
+byr:2002 ecl:hzl iyr:2013
+cid:99
+eyr:2020 pid:48646993
+
+byr:1955 pid:814033843 eyr:2030 hcl:#a97842
+hgt:191cm iyr:2019
+
+pid:111196491 hgt:191cm iyr:2012 ecl:blu hcl:#a97842
+eyr:2026 cid:131 byr:1979
+
+hcl:#fffffd hgt:68in
+cid:121 ecl:oth eyr:2024 pid:343836937
+byr:1955
+iyr:2020
+
+eyr:2025 byr:1954
+pid:737517118
+cid:343 hcl:#b6652a
+iyr:2017 ecl:hzl
+hgt:175cm
+
+ecl:brn
+iyr:2011 hgt:171cm cid:102 pid:066348279 byr:1981
+
+ecl:oth iyr:2018 byr:1975
+eyr:2029
+hgt:185cm cid:226
+pid:978243407 hcl:#341e13
+
+iyr:2015 pid:918017915 hcl:#3e52b7
+byr:1999 ecl:brn cid:314
+eyr:2025 hgt:192cm
+
+hcl:#19d1fa byr:1984 ecl:dne hgt:76in
+iyr:2015 cid:118 pid:417075672
+eyr:2020
+
+iyr:2019
+cid:120 hgt:186cm
+hcl:#733820 eyr:2024 pid:423238982 ecl:brn byr:1968
+
+hgt:70cm cid:173 pid:767014975
+hcl:#866857 eyr:2039 ecl:brn byr:1985
+
+pid:340424924
+eyr:2027 hcl:#7d3b0c
+hgt:168cm ecl:hzl iyr:2016
+byr:1994
+
+ecl:hzl byr:1933 pid:580425691
+iyr:2010 hcl:#c0946f eyr:2024
+hgt:64in
+
+hcl:#9fe6b0 pid:913184461 ecl:grn eyr:2030
+cid:262 iyr:2014
+
+ecl:amb pid:640007768 eyr:2030 byr:2017 iyr:1988 hcl:z
+
+byr:1977 cid:54
+eyr:1939 pid:882762394 iyr:2030 hcl:#ceb3a1 ecl:blu
+
+iyr:2011 hcl:#7d3b0c byr:1928
+pid:340969354 cid:199 hgt:168cm eyr:2029 ecl:hzl
+
+pid:729464282
+iyr:2012 hcl:baae60
+eyr:2026 ecl:hzl hgt:166cm byr:2019
+
+pid:930997801 iyr:2019 eyr:2030
+hcl:#866857 ecl:oth byr:1960 cid:235 hgt:73in
+
+ecl:brn
+byr:1988 hgt:179cm iyr:2017
+pid:864768439 cid:305 hcl:#c0946f
+eyr:2029
+
+hcl:#7d3b0c ecl:grn
+hgt:182cm eyr:2021 pid:719891314
+byr:1920 iyr:2017
+
+hgt:62cm
+cid:71 ecl:brn hcl:#fffffd iyr:2025 eyr:1997
+pid:175cm byr:2022
+
+hcl:#cfa07d cid:239 eyr:2025 ecl:hzl hgt:189in byr:1980 iyr:2020
+pid:703047050
+
+byr:1951
+eyr:2030
+ecl:hzl
+pid:130992467 hgt:157cm hcl:#341e13
+
+hgt:175cm
+hcl:#623a2f
+cid:68 eyr:2025
+byr:2001 ecl:oth pid:253618704 iyr:2016
+
+hcl:#fffffd pid:379344553 ecl:grn
+eyr:2026
+hgt:72in byr:1974 iyr:2013
+
+ecl:#b4e952 byr:1970 hcl:z
+eyr:2039 pid:6056894636 iyr:2021 hgt:165cm
+cid:328
+
+hcl:#602927 iyr:2014 pid:890429537 byr:1957 hgt:68in eyr:2020 ecl:hzl
+
+cid:265 byr:1961 hcl:#ceb3a1 eyr:2022 iyr:2016 hgt:184cm pid:921615309
+
+byr:1951 eyr:2024
+hcl:#341e13
+ecl:amb pid:414644982
+iyr:2010 hgt:159cm
+
+iyr:2015 cid:319
+eyr:2029 ecl:brn pid:380237898
+hcl:#efcc98 hgt:157cm byr:1972
+
+pid:237156579 ecl:#312a91
+hgt:167cm iyr:2011 hcl:#c0946f eyr:2021 byr:1953
+
+ecl:hzl iyr:2015 pid:10160221 eyr:2025 hgt:175cm hcl:z byr:1939
+
+hgt:59in hcl:#18171d byr:1962 ecl:hzl
+iyr:2019 eyr:2025
+cid:337 pid:491938615
+
+ecl:utc hgt:82 pid:51674655 byr:2020
+eyr:1954 iyr:2029 hcl:z
+
+pid:119530189
+cid:103
+iyr:2010 byr:1979
+hgt:168cm hcl:#a97842 ecl:brn eyr:2029
+
+hgt:177cm ecl:brn
+byr:1990
+pid:015089628 eyr:2028 hcl:#733820 iyr:2020
+
+ecl:blu iyr:2020 hgt:189cm
+hcl:#efcc98 byr:1982 pid:346500376 eyr:2021 cid:160
+
+ecl:brn hgt:173cm iyr:2011 cid:259 hcl:#6b5442 eyr:2026
+byr:1995
+pid:654875035
+
+ecl:grn eyr:2025 pid:147155222 byr:1942
+cid:341 hcl:#602927
+hgt:165cm
+iyr:2016
+
+pid:543171646
+hgt:153cm
+iyr:2019 hcl:#fffffd byr:1985 cid:266
+eyr:2027
+ecl:hzl
+
+ecl:blu
+eyr:2022
+pid:667939101 byr:1974
+cid:259 hcl:#888785
+
+eyr:2030 byr:2016 iyr:2022
+pid:86902982
+ecl:zzz hgt:72 hcl:ceb867
+
+hcl:#fffffd
+ecl:grn pid:046978329
+byr:1924
+eyr:2025 hgt:158cm iyr:2011
+
+hgt:150cm eyr:2028 byr:1985 ecl:gry hcl:#866857 pid:340615189
+iyr:2017
+cid:50
+
+cid:171 hcl:#18171d pid:009562218 byr:1981 hgt:175cm eyr:2024 ecl:oth iyr:2017
+
+iyr:2019
+eyr:2022
+ecl:brn hcl:#cfa07d pid:050270380 cid:159
+hgt:151cm
+byr:1951
+
+hcl:#7d3b0c hgt:176cm iyr:2015 byr:1923 pid:348188421 ecl:blu eyr:2029
+
+byr:1997 hgt:162cm eyr:2023 pid:445685977
+iyr:2012 ecl:amb hcl:#efcc98
+
+iyr:2017 ecl:oth eyr:2028 pid:791977055 hgt:170cm byr:1991
+hcl:#623a2f
+
+byr:1998 hcl:#fffffd
+eyr:2020
+ecl:gry pid:039483695 hgt:163cm iyr:2020
+cid:165
+
+ecl:hzl hgt:74in iyr:2016 pid:026214321
+cid:152 hcl:#a1f179
+eyr:2036 byr:2001
+
+pid:257900949 cid:80 byr:1956 iyr:2012 hgt:165cm eyr:2030
+
+pid:918371363
+ecl:xry
+iyr:2012
+byr:2012 hgt:65cm
+eyr:2029
+
+pid:041789006 iyr:2018 byr:1945 eyr:2024 ecl:blu
+hcl:#5ab31e hgt:171cm
+
+ecl:gry
+byr:1956 cid:318 iyr:2020 hcl:#623a2f
+eyr:2030 pid:020576506 hgt:184cm
+
+hgt:173cm iyr:2025
+eyr:2023
+ecl:amb pid:958983168 hcl:#866857 byr:1935
+
+byr:1974
+eyr:2040 pid:57104308 iyr:1980 hcl:z
+hgt:192in cid:295 ecl:amb
+
+pid:180cm hcl:1109f7 eyr:2039 byr:2020
+ecl:dne hgt:189in iyr:1921
+
+iyr:2013 byr:1961
+hcl:#866857
+eyr:2025 hgt:158cm ecl:gry
+
+ecl:brn iyr:2013 eyr:2021 pid:978650418 byr:1980
+hcl:#ceb3a1 cid:110
+hgt:166cm
+
+pid:864880558 ecl:hzl hcl:#c0946f byr:1955 eyr:2027 hgt:169cm iyr:2011
+
+eyr:2023 hgt:191cm hcl:#866857
+pid:454509887
+ecl:grn byr:1938 iyr:2015
+
+pid:793008846 eyr:2025 ecl:grn hcl:#341e13
+hgt:187cm
+byr:1973 cid:224
+iyr:2013
+
+hcl:#866857 eyr:2022 pid:802335395 hgt:171cm ecl:amb
+iyr:2015 byr:1991
+
+hcl:#888785 pid:768625886
+hgt:180cm
+eyr:2026 ecl:oth cid:178 byr:1958
+
+pid:921387245 cid:82 hgt:190cm hcl:#c0946f ecl:grn
+iyr:2015 eyr:2023
+
+pid:0704550258 hcl:1ba8f6 iyr:2010 byr:1978 cid:130
+eyr:2030 ecl:dne hgt:66cm
+
+pid:626293279 hcl:#7d3b0c hgt:185cm ecl:oth
+eyr:2020 byr:1937 iyr:2012
+
+hgt:175
+eyr:1933 ecl:gry
+hcl:#7d3b0c byr:2003 pid:#5d8fcc
+iyr:2012
+
+eyr:2027
+byr:1927 cid:154
+ecl:gry pid:683668809 hgt:164cm
+hcl:#a97842 iyr:2011
+
+byr:1940 iyr:2014 hgt:172cm eyr:2024 pid:033678324 hcl:#10fded
+cid:292 ecl:oth
+
+iyr:1970 ecl:#201515 pid:#4cd485 eyr:2034 hgt:162
+byr:2005 cid:67
+hcl:#c0946f
+
+cid:306
+byr:1948
+hcl:#efcc98
+eyr:2024 hgt:171cm pid:440657854 iyr:2015 ecl:brn
+
+hgt:172cm ecl:brn byr:1958 pid:054926969 hcl:#4b8065 iyr:2019
+
+pid:45977569 ecl:amb byr:2002 hgt:71cm hcl:z iyr:1983
+
+pid:811407848 hcl:#866857 cid:112 hgt:180cm byr:1986
+ecl:brn eyr:2026
+
+ecl:amb
+byr:1992
+cid:288 pid:417117245 hcl:#623a2f
+iyr:2011 hgt:181cm
+eyr:2021
+
+byr:1974 hgt:192cm cid:172
+eyr:2022
+ecl:blu
+hcl:#cfa07d iyr:2014
+
+eyr:2024 ecl:gry
+pid:874569675 byr:1960 iyr:2017 hgt:186cm
+hcl:#6b5442
+
+byr:1988 eyr:2024 iyr:2020 ecl:oth hcl:#866857 pid:227304269 hgt:170cm
+
+ecl:grn iyr:2019 byr:2002 cid:150 hcl:#efcc98
+pid:600740993
+hgt:167cm eyr:2027
+
+pid:553824537 iyr:2019 ecl:blu eyr:2025 hcl:#e21269 hgt:193cm
+byr:1923
+
+byr:2030 iyr:2019 ecl:#cb0911
+hcl:#cfa07d hgt:74in eyr:2012
+pid:7647207386
+
+cid:289 hgt:128 pid:178cm iyr:2025 ecl:#4ad977 byr:2020 eyr:2036 hcl:#efcc98
+
+cid:119 hgt:150in
+hcl:z
+iyr:2012
+ecl:brn eyr:1975
+byr:2007 pid:#0dcd32
+
+hcl:8a1ce7 pid:0434291854
+eyr:2034 iyr:2005
+hgt:62cm byr:2029 ecl:utc
+
+ecl:gry hcl:#ceb3a1 byr:1976 eyr:2024 iyr:2010 hgt:188cm
+pid:636312902
+
+hcl:#888785 byr:2027 hgt:178in iyr:2017 pid:973095872 eyr:1952
+
+hgt:179cm iyr:2015 hcl:#ceb3a1
+byr:1944 pid:182079308 cid:317
+eyr:2025 ecl:hzl
+
+hcl:#6b5442 ecl:grn eyr:2023 hgt:71in pid:829794667 byr:2000
+iyr:2014 cid:192
+
+iyr:2014 pid:096659610 hcl:#c0946f ecl:oth byr:1991 cid:180
+hgt:177cm
+eyr:2023
+
+byr:2017
+eyr:2036 iyr:1933
+cid:225 ecl:gmt hgt:179in
+hcl:b5c44d pid:99932231
+
+hcl:#18171d
+hgt:187cm eyr:2023 byr:1934 cid:286 pid:878541119 iyr:2020 ecl:amb
+
+hgt:185cm
+pid:754207134 ecl:oth eyr:2023
+hcl:#a97842 cid:313 byr:1966
+iyr:2015
+
+hcl:#ceb3a1 byr:1921 eyr:2022 pid:799265846 cid:285
+hgt:67in iyr:2015
+
+iyr:2011 byr:1941
+hcl:#341e13 cid:65 pid:413556937
+hgt:169cm
+ecl:amb eyr:2020
+
+iyr:2016
+hgt:158cm ecl:grn byr:1931 hcl:#7d3b0c
+
+pid:574299170 iyr:2013 byr:1961 ecl:hzl hcl:#866857 hgt:168cm eyr:2022
+
+eyr:2022 pid:245416405
+iyr:2019 hgt:173cm hcl:#c0946f
+ecl:brn
+byr:1965
+
+byr:1980 hgt:162cm ecl:brn pid:239318191
+hcl:#fffffd
+cid:58 eyr:2025 iyr:2020
+
+pid:892646915
+iyr:2012 hcl:#733820 byr:1991 eyr:2021
+hgt:157cm ecl:oth
+
+pid:310597466 eyr:2025
+hcl:#cfa07d byr:1944 iyr:2018 ecl:oth
+hgt:183cm
+
+iyr:2010 hgt:187cm ecl:oth
+pid:975763328
+hcl:#866857 eyr:2023 cid:283 byr:1997
+
+iyr:2020 cid:225 hcl:#efcc98 pid:424680047 ecl:blu
+hgt:154cm
+byr:1968 eyr:2027
+
+ecl:oth eyr:2020 hgt:183cm hcl:#623a2f
+pid:771851807
+byr:1990
+iyr:2017
+
+hcl:#efcc98 ecl:blu byr:1991 hgt:191cm pid:266021118
+cid:124
+eyr:2025
+
+byr:1993
+ecl:hzl eyr:2020
+hgt:163cm
+iyr:2015 pid:831538073 hcl:#18171d
+
+hgt:74in hcl:#420afb eyr:2028
+ecl:grn pid:264469103
+byr:1993
+
+eyr:2020
+cid:79
+byr:1972
+pid:084953331 hcl:#a97842 ecl:brn iyr:2010
+hgt:170cm
+
+iyr:2014 ecl:gry pid:094812116 eyr:2026 hgt:190cm byr:1965 hcl:#944667
+
+hcl:#fffffd byr:1953 iyr:2014 ecl:hzl hgt:164cm
+cid:123 eyr:2023 pid:546394433
+
+iyr:2012 hgt:155cm byr:1998 pid:#2c9be6 eyr:2023 hcl:#ceb3a1 ecl:gry
+
+eyr:2029 ecl:gry pid:752489331 iyr:2015 hgt:167cm hcl:#18171d cid:70 byr:2002
+
+byr:1938
+ecl:gry
+pid:764937909 iyr:2014
+hcl:#7d3b0c
+eyr:2022 cid:145 hgt:184cm
+
+cid:340
+byr:1924 hgt:169cm eyr:2026
+iyr:2013 ecl:amb
+pid:499844992 hcl:#18171d
+
+pid:838417672 hgt:175cm
+ecl:grt iyr:2017 eyr:2025 hcl:17aa1a
+
+eyr:2020
+byr:1925 hcl:#341e13
+ecl:brn cid:342 pid:047426814 hgt:156cm iyr:2012
+
+iyr:2011 hcl:#341e13 byr:1959
+ecl:amb pid:969679865
+
+byr:1978 cid:320 hgt:180cm hcl:#435ceb pid:363518544 eyr:2023 iyr:2016 ecl:blu
+
+iyr:2010 eyr:2028
+pid:183cm byr:1948
+ecl:oth cid:133
+hcl:#8d3298 hgt:190cm
+
+hcl:#6b5442 byr:1929 iyr:2019 pid:207713865 eyr:2029
+hgt:166cm ecl:gry
+
+ecl:blu iyr:2019
+byr:1985 eyr:2030 hcl:#866857 hgt:155cm pid:659180287
+
+ecl:hzl
+eyr:2020 iyr:2016 pid:440624039
+cid:147
+hgt:61in byr:1976 hcl:#733820
+
+hcl:#341e13 pid:178082907 eyr:2023
+iyr:2015 byr:1956
+ecl:amb hgt:163cm
+
+eyr:2023
+iyr:2011 hcl:#cfa07d hgt:164cm
+pid:291621559 byr:1960 ecl:gry
+
+hcl:#efcc98 byr:1976
+iyr:2017 pid:394566091 cid:248
+hgt:176cm ecl:hzl eyr:2026
+
+iyr:2013 eyr:2029 hgt:152cm ecl:gry byr:1984 hcl:#623a2f pid:511780941
+
+pid:953716819 iyr:2010 hgt:156cm ecl:amb
+byr:1947
+hcl:#18171d eyr:2025
+
+eyr:2025 ecl:amb
+iyr:2016
+hcl:#cfa07d byr:1925 pid:322787273 hgt:168cm
+
+hgt:59in iyr:2012
+pid:916978929 byr:1959
+hcl:#c0946f eyr:2021
+ecl:brn
+
+byr:2018 eyr:1929 hgt:187in
+hcl:z
+iyr:2003 pid:0377361331 ecl:utc
+
+byr:1949 hcl:#fffffd pid:071791776 eyr:2030 iyr:2015 hgt:71in ecl:hzl
+
+hcl:#341e13
+hgt:154cm byr:1927 eyr:2023 ecl:blu iyr:2017
+pid:639867283
+
+hcl:z pid:315276249 byr:2026
+hgt:151cm
+iyr:2028 eyr:2020
+ecl:hzl
+
+hcl:#341e13 eyr:2027 byr:1981 cid:342 pid:999898177 hgt:187cm
+ecl:blu iyr:2011
+
+byr:2009
+hgt:73cm iyr:1921 hcl:z
+pid:181cm
+ecl:xry
+
+ecl:hzl
+byr:1925
+pid:034183103 hcl:#341e13 hgt:158cm eyr:2029 iyr:2010
+
+byr:1976
+iyr:2011 hgt:177cm pid:833479839 hcl:#dcab9d ecl:blu eyr:2020
+
+cid:230 hcl:#7d3b0c byr:1954
+iyr:2014 eyr:2026 pid:122150889
+ecl:brn hgt:182cm
+
+hcl:#a97842
+ecl:brn hgt:187cm
+eyr:2028
+pid:427631634 iyr:2002 byr:2004
+
+pid:912516995 ecl:hzl iyr:2017 hcl:#ceb3a1 byr:1929 eyr:2028
+hgt:155cm
+
+pid:019809181
+cid:128 iyr:2013 hcl:#f5b9f7 byr:1931
+hgt:161cm
+ecl:amb
+
+hgt:64in byr:1924
+iyr:2016 eyr:2029 ecl:hzl pid:474940085 hcl:#c0946f
+
+pid:172419213
+ecl:grn
+hgt:193cm iyr:2010 byr:1973 hcl:#6b5442
+eyr:2027
+
+ecl:#7b5cfd iyr:2019
+byr:2016
+eyr:2040 hgt:191in
+cid:187 hcl:z pid:#c61084
+
+eyr:2032 iyr:2014 pid:430247344 byr:1967
+hcl:#ceb3a1
+cid:241
+ecl:brn hgt:178in
+
+hcl:#623a2f iyr:2017 cid:235
+eyr:2020 byr:1978 ecl:blu hgt:175cm
+
+iyr:2013 ecl:amb hgt:174cm hcl:#866857 pid:285533942 byr:1954
+
+hgt:152cm ecl:blu pid:952587262 eyr:2024
+iyr:2019 cid:268 hcl:#602927 byr:1947
+
+hgt:176in cid:245 byr:2011 iyr:2018
+eyr:1987
+hcl:z
+pid:346518170
+ecl:utc
+
+hgt:180cm
+iyr:2015 ecl:brn eyr:2027 pid:807494368 cid:324 byr:1980
+
+byr:1936 hcl:#866857 ecl:blu
+eyr:2021 hgt:187cm
+iyr:2016 pid:244556968
+
+byr:1950 cid:125
+iyr:2020 hgt:168cm hcl:#c0946f eyr:2030 pid:758313758 ecl:blu
+
+eyr:2021
+pid:618915663 hcl:#cfa07d iyr:2018 byr:2002
+hgt:157cm ecl:blu
+
+byr:1967
+ecl:brn hcl:#c0946f pid:200495802 eyr:2021 iyr:2020
+cid:335
+hgt:181cm
+
+byr:1996
+ecl:brn iyr:2015
+eyr:2030
+hcl:#fffffd cid:207
+pid:022460311 hgt:158cm
+
+eyr:2022 hgt:59cm iyr:2023
+byr:1974 pid:354098699 hcl:b244f7
+ecl:#219505
+
+hcl:#866857 eyr:2025
+pid:370874666
+byr:1947
+cid:162 ecl:oth hgt:186cm iyr:2011
+
+ecl:hzl eyr:2029
+byr:1981
+iyr:2012 pid:433430792 cid:252
+hgt:171cm
+
+pid:512473844 hgt:186cm iyr:2012 eyr:2028 byr:1949 ecl:hzl hcl:#18171d
+
+hgt:60cm iyr:1934
+ecl:#4a4017 pid:3067366202 hcl:1161df
+eyr:1938 byr:2008
+
+pid:119509757 hcl:#cfa07d eyr:2022 hgt:174cm byr:1983
+iyr:2015
+ecl:blu
+
+byr:1955 eyr:2023
+cid:114
+hcl:f1aa8a pid:609049659 ecl:grn hgt:177cm
+iyr:2015
+
+eyr:2027 cid:284
+pid:654627982 byr:1964 iyr:2018 hgt:168cm
+hcl:#fffffd ecl:oth
+
+iyr:1988
+hgt:191cm hcl:b87a62 byr:1990 ecl:xry
+pid:996624367 eyr:1960
+
+pid:641466821 eyr:2028 hcl:#7d3b0c
+iyr:2010 hgt:175cm ecl:gry
+
+hcl:#b6652a
+ecl:oth
+byr:1926 eyr:2030 iyr:2019 hgt:183cm
+pid:057196056
+
+iyr:2017
+eyr:2022 pid:936841429
+ecl:blu hcl:#6b5442 cid:179 byr:1927 hgt:161cm
+
+eyr:2021
+cid:289 hgt:174cm iyr:2013
+ecl:grn pid:329574701 byr:1970
+
+eyr:2021 byr:1939 ecl:gry pid:933505139 iyr:2014 hgt:173cm hcl:#7d3b0c
+
+cid:116 hcl:045bff eyr:2030 iyr:1920
+ecl:brn
+byr:2030
+pid:#38f7f3
+hgt:155in
+
+eyr:2028
+pid:225829241 byr:1928 hcl:#cfa07d iyr:2019
+ecl:oth
+hgt:166cm
+
+cid:80 byr:1936
+iyr:2017
+hgt:94 hcl:#2e7503 ecl:oth eyr:2030
+pid:597284996
+
+ecl:oth
+iyr:2019 hgt:76in
+byr:1956 pid:821874039
+
+eyr:2026 hgt:168cm
+pid:019015588
+iyr:2010
+ecl:amb byr:2009 hcl:#623a2f cid:159
+
+iyr:1980 hgt:167in
+pid:380644909 eyr:1966 ecl:blu byr:2004 hcl:z
+
+eyr:2020 iyr:2013
+hcl:#08ad66 pid:540886868
+ecl:oth byr:1980 hgt:158cm
+
+eyr:2026 hgt:186cm byr:1995
+cid:275
+hcl:z iyr:1958 ecl:blu
+
+eyr:2026 iyr:2012
+hgt:61in byr:1936 pid:390833536 cid:298 ecl:grn hcl:#623a2f
+
+pid:393878498 eyr:2023 ecl:gry byr:1943 iyr:2010 hcl:#888785 hgt:158cm
+
+hgt:191cm cid:197 iyr:2014 byr:1945
+hcl:#fffffd
+eyr:2020
+pid:183948344 ecl:amb
+
+ecl:gmt hgt:88
+cid:260 iyr:2024 byr:2022 eyr:2031 hcl:z pid:#532c6e
+
+hcl:#a97842
+hgt:160cm eyr:2024 ecl:blu iyr:2015 byr:1970
+
+byr:1964 hgt:178cm
+eyr:2025
+pid:813643223 ecl:brn iyr:2014
+hcl:#ceb3a1
+
+byr:1965 eyr:2024 iyr:2018
+hgt:165cm hcl:#18171d ecl:grn pid:475669993
+
+hgt:116
+iyr:2024 eyr:1974 hcl:504345 byr:2010 cid:206 pid:166cm ecl:zzz
+
+iyr:2014 eyr:2020 pid:096460673 byr:1948
+hgt:153cm
+ecl:blu hcl:#341e13
+
+hcl:#ceb3a1
+iyr:2017 hgt:67cm
+pid:178cm byr:2028 ecl:brn
+cid:293
+
+hgt:157cm
+hcl:#602927 byr:1941
+iyr:2012 pid:611003211 eyr:2029
+
+iyr:2019 byr:2000 pid:083917767 eyr:2024 hgt:172cm
+cid:248 hcl:#7e4d15
+
+byr:1946
+hgt:160cm iyr:2020 hcl:#559278 pid:989139577
+ecl:amb eyr:2020
+
+pid:165cm byr:1927 cid:178 hcl:#733820 iyr:2017 hgt:156in
+eyr:2029 ecl:brn
+
+hcl:#18171d hgt:163cm eyr:2022 byr:1962 pid:639124940 cid:258 ecl:hzl
+iyr:2015
+
+cid:123 pid:4542006033
+eyr:1987 byr:2010 iyr:2029 ecl:amb
+hgt:191cm hcl:#18171d
+
+hcl:z
+byr:1928 iyr:1965
+eyr:2022 hgt:75 ecl:oth pid:400765046
+
+hcl:#c0946f hgt:62in
+ecl:blu byr:1978 iyr:1923
+cid:260 eyr:2021 pid:404628742
+
+pid:#bf1611 ecl:grn
+iyr:2018 cid:146 byr:1948
+eyr:2025 hcl:#fffffd hgt:87
+
+pid:767547618
+iyr:2018 hcl:#b6652a eyr:2029 hgt:165cm ecl:hzl byr:1937
+
+ecl:blu iyr:2019 pid:960083875 eyr:2027 hgt:71in hcl:#c0946f
+byr:1921
+
+iyr:2011
+pid:9562042482
+hcl:z hgt:59cm
+eyr:1994 cid:258 ecl:#6c1bcc byr:2025
+
+eyr:2028 pid:494999718 byr:1928 hgt:176cm
+iyr:2015 ecl:oth hcl:#733820
+
+cid:78 eyr:2020 hgt:160cm byr:1947 ecl:blu
+hcl:#b6652a iyr:2016 pid:069457741
+
+hcl:#6b5442 iyr:2010
+byr:1971
+eyr:2028 hgt:169cm ecl:brn pid:528961949
+
+eyr:2028
+hcl:#7d3b0c
+byr:1952
+ecl:hzl
+cid:317 iyr:2016
+pid:832169844
+
+hcl:#c0946f
+ecl:brn
+iyr:2017 eyr:2028
+pid:161390075 byr:1993 cid:50
+hgt:171cm
+
+ecl:#ae12d3 hgt:74cm cid:239 hcl:z pid:345439730 iyr:1924 byr:2029 eyr:2031`
+
+function day4() {
+    type Validator = (value: string) => true | false;
+
+    function isBetween(value: string, start: number, end: number): boolean {
+        return parseInt(value) >= start && parseInt(value) <= end;
     };
-  }
-);
+    const HAIRCOLORS_ALLOWED_CHARS: string[] = [
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
+    ]
+    const EYECOLORS_ALLOWED: string[] = [
+        "amb", "blu", "brn", "gry", "grn", "hzl", "oth"
+    ]
+    const VALIDATORS_BYR = [
+        (value: string): boolean => isBetween(value, 1920, 2002),
+        (value: string): boolean => value.length === 4
+    ]
+    const VALIDATORS_IYR = [
+        (value: string): boolean => isBetween(value, 2010, 2020),
+        (value: string): boolean => value.length === 4
+    ]
+    const VALIDATORS_EYR = [
+        (value: string): boolean => isBetween(value, 2020, 2030),
+        (value: string): boolean => value.length === 4
+    ]
+    const VALIDATORS_HGT = [
+        (value: string): boolean => value.length === 5 && endsWith(value, "cm") && isBetween(dropRight(value, 2).join(''), 150, 193) || value.length === 4 && endsWith(value, "in") && isBetween(dropRight(value, 2).join(''), 59, 76),
+    ]
+    const VALIDATORS_HCL = [
+        (value: string): boolean => startsWith(value, "#"),
+        (value: string): boolean => value.length === 7,
+        (value: string): boolean => reduce(map(drop(value, 1), (char): boolean => includes(HAIRCOLORS_ALLOWED_CHARS, char)), (prevResult, nextResult) => prevResult && nextResult)
+    ]
 
-const result = filter(map(policyObjs, (policyObj) =>
-  (split(policyObj.password, "")[policyObj.first - 1] === policyObj.letter ||
-    split(policyObj.password, "")[policyObj.second - 1] === policyObj.letter) &&
-    (split(policyObj.password, "")[policyObj.first - 1] !== split(policyObj.password, "")[policyObj.second - 1])
-    ?
-    1 :
-    0
-), (count) => count > 0).length;
+    const VALIDATORS_ECL = [
+        (value: string): boolean => includes(EYECOLORS_ALLOWED, value)
+    ]
 
-console.log(result);
+    const VALIDATORS_PID = [
+        (value: string): boolean => value.length === 9,
+        (value: string): boolean => reduce(map(value.split(''), (char) => isNumber(parseInt(char)) && isBetween(char, 0, 9)), (results, result) => results && result)
+    ]
+
+    const fields = [
+        { name: "byr", required: true, validators: VALIDATORS_BYR },
+        { name: "iyr", required: true, validators: VALIDATORS_IYR },
+        { name: "eyr", required: true, validators: VALIDATORS_EYR },
+        { name: "hgt", required: true, validators: VALIDATORS_HGT },
+        { name: "hcl", required: true, validators: VALIDATORS_HCL },
+        { name: "ecl", required: true, validators: VALIDATORS_ECL },
+        { name: "pid", required: true, validators: VALIDATORS_PID },
+        { name: "cid", required: false, validators: [() => true] },
+    ]
+
+    function isValid(validators: Array<Validator>, value: string): boolean {
+        return reduce(map(validators, (validator) => validator(value)), (results, resultNext) => results && resultNext)
+    }
+
+    const requiredFields = fields
+        .filter((field) => field.required)
+
+    return batchInput
+        .split("\n\n")
+        .map((passport) => passport.split(/\s/))
+        .map((passport) => fromPairs(map(passport, (f) => split(f, ":"))))
+        .filter((passport) => reduce(map(requiredFields, (field) => includes(keysIn(passport).join(), field.name)), (resultPrev, resultNext) => resultPrev && resultNext)) //validne passporty
+        .map((passport) => reduce(map(requiredFields, (field) => isValid(field.validators, passport[field.name])), (results, result) => results && result))
+        .filter((result) => result)
+        .length
+}
+
+console.log(day4);
